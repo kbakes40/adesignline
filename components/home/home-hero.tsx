@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -130,17 +129,17 @@ export default function HomeHero() {
               <source src={slide.src} type="video/mp4" />
             </video>
           ) : (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element -- Large /public hero assets: native <img> avoids optimizer edge cases on Vercel.
+            <img
               key={slide.id}
               src={slide.src}
               alt={slide.alt}
               width={slide.width}
               height={slide.height}
-              className="block h-auto w-full max-w-none"
-              sizes="100vw"
-              priority={!isVideo && index === firstImageSlideIndex}
-              quality={100}
-              unoptimized
+              className="block h-auto w-full max-w-none bg-neutral-100"
+              loading={index === firstImageSlideIndex ? 'eager' : 'lazy'}
+              fetchPriority={index === firstImageSlideIndex ? 'high' : undefined}
+              decoding="async"
             />
           )}
         </Link>

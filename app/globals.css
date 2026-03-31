@@ -29,11 +29,7 @@
   }
 }
 
-@supports (font: -apple-system-body) and (-webkit-appearance: none) {
-  img[loading='lazy'] {
-    clip-path: inset(0.6px);
-  }
-}
+/* Removed global clip-path on lazy images — it can clip large hero photos in Safari/WebKit on production. */
 
 a,
 input,
