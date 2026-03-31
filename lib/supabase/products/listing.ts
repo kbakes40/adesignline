@@ -1,12 +1,13 @@
-import type { CollectionListingQuery, ProductListingRow } from 'lib/catalog/product-listing-types';
 import { applyFacetFiltersToListingRows } from 'lib/catalog/listing-facet';
+import type { CollectionListingQuery, ProductListingRow } from 'lib/catalog/product-listing-types';
 import { catalogCategorySlugs, collectionsWithCatalogCategoryParam } from 'lib/collection-category-filters';
-import { nikeCategoryTag, type NikeCategorySlug } from 'lib/nike-catalog-data';
 import { COLLECTION_PAGE_SIZE } from 'lib/collection-pagination';
+import { VercelSortKeys } from 'lib/constants';
+import { nikeCategoryTag, type NikeCategorySlug } from 'lib/nike-catalog-data';
+import { listingMatchesQuery, sortListingsByRelevance } from 'lib/search/rank';
 import type { FacetFilterState } from 'lib/search-facet-engine';
 import { isEmptyFacetState } from 'lib/search-facet-engine';
 import { getSupabaseAnon } from 'lib/supabase/server';
-import { VercelSortKeys } from 'lib/constants';
 
 const MAX_LISTING_SCAN = 50_000;
 
@@ -66,21 +67,6 @@ async function fetchRawListingsAll(): Promise<Record<string, unknown>[]> {
   return data ?? [];
 }
 
-function tokenizeQuery(q: string | undefined): string[] {
-  if (!q?.trim()) return [];
-  return q
-    .trim()
-    .toLowerCase()
-    .replace(/\+/g, ' ')
-    .split(/\s+/)
-    .filter(Boolean);
-}
-
-function rowMatchesTokens(row: ProductListingRow, tokens: string[]): boolean {
-  if (!tokens.length) return true;
-  const hay = `${row.title} ${row.short_description ?? ''} ${row.search_text ?? ''} ${row.tags.join(' ')}`.toLowerCase();
-  return tokens.every((t) => hay.includes(t));
-}
 
 /** Apply collection-specific category filters (Nike, merch buckets) — same semantics as getCollectionProducts. */
 function applyCollectionNarrowing(
@@ -142,8 +128,8 @@ export type ListingPageResult = {
 export async function getCollectionListingsPage(q: CollectionListingQuery): Promise<ListingPageResult> {
   const raw = await fetchRawListingsForCollection(q.collection);
   let rows = raw.map(mapRow);
-  const tokens = tokenizeQuery(q.query);
-  rows = rows.filter((r) => rowMatchesTokens(r, tokens));
+  const queryStr = q.query?.trim() ?? '';
+  rows = rows.filter((r) => listingMatchesQuery(r, queryStr));
   rows = applyCollectionNarrowing(rows, q.collection, q.category);
 
   /** Pool for facet counts: narrowed by collection + query + category, not by facet UI. */
@@ -153,7 +139,10 @@ export async function getCollectionListingsPage(q: CollectionListingQuery): Prom
     isEmptyFacetState(q.facetState ?? { multi: {} }) ? undefined : q.facetState
   );
   const total = filtered.length;
-  const sorted = sortListingRows(filtered, q.sortKey ?? 'RELEVANCE', q.reverse ?? false);
+  const sorted =
+    (q.sortKey ?? 'RELEVANCE') === 'RELEVANCE' && queryStr
+      ? sortListingsByRelevance(filtered, queryStr)
+      : sortListingRows(filtered, q.sortKey ?? 'RELEVANCE', q.reverse ?? false);
   const pageSize = q.pageSize || COLLECTION_PAGE_SIZE;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const page = Math.min(Math.max(1, q.page), totalPages);
@@ -181,15 +170,18 @@ export async function getSearchListingsPage(params: {
 }): Promise<ListingPageResult> {
   const raw = await fetchRawListingsAll();
   let rows = raw.map(mapRow);
-  const tokens = tokenizeQuery(params.query);
-  rows = rows.filter((r) => rowMatchesTokens(r, tokens));
+  const queryStr = params.query?.trim() ?? '';
+  rows = rows.filter((r) => listingMatchesQuery(r, queryStr));
   const facetBaseRows = rows;
   const filtered = applyFacetFiltersToListingRows(
     rows,
     isEmptyFacetState(params.facetState ?? { multi: {} }) ? undefined : params.facetState
   );
   const total = filtered.length;
-  const sorted = sortListingRows(filtered, params.sortKey ?? 'RELEVANCE', params.reverse ?? false);
+  const sorted =
+    (params.sortKey ?? 'RELEVANCE') === 'RELEVANCE' && queryStr
+      ? sortListingsByRelevance(filtered, queryStr)
+      : sortListingRows(filtered, params.sortKey ?? 'RELEVANCE', params.reverse ?? false);
   const pageSize = params.pageSize || COLLECTION_PAGE_SIZE;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const page = Math.min(Math.max(1, params.page), totalPages);

@@ -1,32 +1,33 @@
-import { notFound } from 'next/navigation';
 import {
-  catalogCategorySlugs,
-  collectionsWithCatalogCategoryParam,
-  productMatchesCatalogCategory,
-  type CatalogCategorySlug
+    catalogCategorySlugs,
+    collectionsWithCatalogCategoryParam,
+    productMatchesCatalogCategory,
+    type CatalogCategorySlug
 } from 'lib/collection-category-filters';
 import { VercelSortKeys } from 'lib/constants';
-import { sortProducts } from 'lib/product-sort';
-import {
-  applyFacetFilters,
-  type FacetFilterState
-} from 'lib/search-facet-engine';
 import { nikeCategoryTag, type NikeCategorySlug } from 'lib/nike-catalog-data';
-import { getRelatedProductsForProduct } from '../related-products';
-import { collections, menu, pages, products } from '../adesignline-data';
+import { sortProducts } from 'lib/product-sort';
+import { productMatchesQuery, sortProductsByRelevance } from 'lib/search/rank';
+import {
+    applyFacetFilters,
+    type FacetFilterState
+} from 'lib/search-facet-engine';
 import { isSupabaseCatalogEnabled } from 'lib/supabase/env';
 import {
-  getProductDetailPayloadByHandle,
-  getProductDetailPayloadBySlug
+    getProductDetailPayloadByHandle,
+    getProductDetailPayloadBySlug
 } from 'lib/supabase/products/detail';
+import { notFound } from 'next/navigation';
+import { collections, menu, pages, products } from '../adesignline-data';
 import { appendCartLines, getHydratedCart, removeLinesByIds, updateLineQuantity } from '../cart-local';
+import { getRelatedProductsForProduct } from '../related-products';
 import type {
-  LineItemCustomization,
-  VercelCart,
-  VercelCollection,
-  VercelMenu,
-  VercelPage,
-  VercelProduct
+    LineItemCustomization,
+    VercelCart,
+    VercelCollection,
+    VercelMenu,
+    VercelPage,
+    VercelProduct
 } from './types';
 
 function normalizeHandle(handle: string | undefined) {
@@ -73,12 +74,7 @@ export async function getCollectionProducts({
 }): Promise<VercelProduct[]> {
   let filtered = products.filter((product) => product.tags.includes(collection));
   if (query?.trim()) {
-    const raw = query.trim().toLowerCase().replace(/\+/g, ' ');
-    const tokens = raw.split(/\s+/).filter(Boolean);
-    filtered = filtered.filter((product) => {
-      const hay = [product.title, product.description, ...product.tags].join(' ').toLowerCase();
-      return tokens.every((t) => hay.includes(t));
-    });
+    filtered = filtered.filter((product) => productMatchesQuery(product, query));
   }
   if (collection === 'nike' && category && nikeCategorySlugs.has(category)) {
     const tag = nikeCategoryTag(category as NikeCategorySlug);
@@ -94,6 +90,9 @@ export async function getCollectionProducts({
     );
   }
   filtered = applyFacetFilters(filtered, facetState);
+  if (query?.trim() && sortKey === 'RELEVANCE') {
+    return sortProductsByRelevance(filtered, query);
+  }
   return sortProducts(filtered, sortKey, reverse);
 }
 
@@ -110,14 +109,12 @@ export async function getProducts({
 } = {}): Promise<VercelProduct[]> {
   let filtered = products;
   if (query?.trim()) {
-    const raw = query.trim().toLowerCase().replace(/\+/g, ' ');
-    const tokens = raw.split(/\s+/).filter(Boolean);
-    filtered = filtered.filter((product) => {
-      const hay = [product.title, product.description, ...product.tags].join(' ').toLowerCase();
-      return tokens.every((t) => hay.includes(t));
-    });
+    filtered = filtered.filter((product) => productMatchesQuery(product, query));
   }
   filtered = applyFacetFilters(filtered, facetState);
+  if (query?.trim() && sortKey === 'RELEVANCE') {
+    return sortProductsByRelevance(filtered, query);
+  }
   return sortProducts(filtered, sortKey, reverse);
 }
 

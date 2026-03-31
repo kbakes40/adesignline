@@ -22,12 +22,15 @@ function buildInitialSelected(variants: ProductVariant[]): Record<string, string
 export function LocalVariantSelector({
   options,
   variants,
-  onVariantChange
+  onVariantChange,
+  layout = 'stack'
 }: {
   options: ProductOption[];
   variants: ProductVariant[];
   // eslint-disable-next-line no-unused-vars -- callback signature
   onVariantChange: (variant: ProductVariant | undefined) => void;
+  /** Patch flow: options read left-to-right with wrapping instead of a vertical stack. */
+  layout?: 'stack' | 'horizontal';
 }) {
   const hasNoOptionsOrJustOneOption =
     !options.length || (options.length === 1 && options[0]?.values.length === 1);
@@ -71,9 +74,20 @@ export function LocalVariantSelector({
   }
 
   return (
-    <div className="space-y-5">
+    <div
+      className={clsx(
+        layout === 'horizontal'
+          ? 'grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+          : 'space-y-5'
+      )}
+    >
       {options.map((option) => (
-        <dl key={option.id}>
+        <dl
+          key={option.id}
+          className={clsx(
+            layout === 'horizontal' && 'rounded-lg border border-neutral-200/80 bg-white p-3 shadow-sm'
+          )}
+        >
           <dt className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-500">
             {option.name}
           </dt>

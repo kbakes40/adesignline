@@ -16,10 +16,13 @@ type Combination = {
 
 export function VariantSelector({
   options,
-  variants
+  variants,
+  layout = 'stack'
 }: {
   options: ProductOption[];
   variants: ProductVariant[];
+  /** Patch PDP: options read left-to-right in a responsive grid instead of a vertical stack. */
+  layout?: 'stack' | 'horizontal';
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -41,9 +44,14 @@ export function VariantSelector({
     )
   }));
 
-  return options.map((option) => (
-    <dl className="mb-8" key={option.id}>
-      <dt className="mb-4 text-sm uppercase tracking-wide">{option.name}</dt>
+  const list = options.map((option) => (
+    <dl
+      className={clsx(layout === 'horizontal' ? 'rounded-lg border border-neutral-200/80 bg-white p-3 shadow-sm' : 'mb-8')}
+      key={option.id}
+    >
+      <dt className={clsx(layout === 'horizontal' ? 'mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-500' : 'mb-4 text-sm uppercase tracking-wide')}>
+        {option.name}
+      </dt>
       <dd className="flex flex-wrap gap-3">
         {option.values.map((value) => {
           const optionNameLowerCase = option.name.toLowerCase();
@@ -106,4 +114,12 @@ export function VariantSelector({
       </dd>
     </dl>
   ));
+
+  if (layout === 'horizontal') {
+    return (
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">{list}</div>
+    );
+  }
+
+  return <>{list}</>;
 }

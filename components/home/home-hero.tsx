@@ -18,6 +18,16 @@ type HeroSlide = {
 
 /** Homepage hero banners: see public/home. */
 const slides: HeroSlide[] = [
+  /** [Premium ecommerce homepage surreal](https://drive.google.com/file/d/1OUQpR9QrPTjuAi7lKU_27SyiRUBFlq8p/view?usp=sharing) */
+  {
+    id: 'homepage-premium-surreal',
+    src: '/home/hero-premium-homepage-14.jpg',
+    width: 5504,
+    height: 3072,
+    alt: 'Premium ecommerce homepage — branded merchandise and apparel',
+    href: '/search',
+    aria: 'Shop custom branded products'
+  },
   /** [Gear up banner](https://drive.google.com/file/d/1sUehYWWF3JsjrKNHpucvqfVKw50EI4jz/view?usp=sharing) */
   {
     id: 'gear-up-brand',

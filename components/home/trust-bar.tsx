@@ -17,32 +17,35 @@ const items = [
 ] as const;
 
 const imageCircleClass =
-  'relative flex h-[9rem] w-[9rem] shrink-0 overflow-hidden rounded-full bg-[#0d7c82]/14 md:h-[11rem] md:w-[11rem] lg:h-[13rem] lg:w-[13rem]';
+  'relative flex h-[9.75rem] w-[9.75rem] shrink-0 overflow-hidden rounded-full bg-[#0d7c82]/14 sm:h-[10.5rem] sm:w-[10.5rem] md:h-[11.25rem] md:w-[11.25rem] lg:h-[12rem] lg:w-[12rem]';
 
 export default function TrustBar() {
   return (
-    <section className="border-b border-t border-neutral-200 bg-white py-14 md:py-20 lg:py-24">
-      <div className="mx-auto grid max-w-[min(100%,100rem)] grid-cols-2 gap-x-8 gap-y-14 px-5 sm:gap-x-10 sm:gap-y-16 sm:px-8 md:grid-cols-4 md:gap-x-12 md:gap-y-0 md:px-10 lg:gap-x-16 lg:px-14">
-        {items.map((item) => (
-          <div
-            key={item.key}
-            className="flex flex-col items-center gap-7 text-center md:flex-row md:items-center md:gap-8 md:text-left lg:gap-9"
-          >
-            <div className={imageCircleClass}>
-              <Image
-                src={item.src}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 9rem, (max-width: 1024px) 11rem, 13rem"
-                unoptimized
-              />
+    <section className="border-b border-t border-neutral-200 bg-white py-10 md:py-14 lg:py-16">
+      {/* Narrower max width on large screens so the four units read as one band, not four distant columns. */}
+      <div className="mx-auto max-w-[min(100%,72rem)] px-4 sm:px-6 md:px-8 lg:px-10">
+        <div className="grid grid-cols-2 justify-items-center gap-x-4 gap-y-8 sm:gap-x-5 sm:gap-y-9 md:grid-cols-4 md:gap-x-5 md:gap-y-0 lg:gap-x-7 xl:gap-x-8">
+          {items.map((item) => (
+            <div
+              key={item.key}
+              className="flex w-full max-w-[11.5rem] flex-col items-center gap-2 text-center sm:max-w-[12rem] sm:gap-2 md:max-w-[13rem] md:gap-2"
+            >
+              <div className={imageCircleClass}>
+                <Image
+                  src={item.src}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 9.75rem, (max-width: 768px) 10.5rem, (max-width: 1024px) 11.25rem, 12rem"
+                  unoptimized
+                />
+              </div>
+              <span className="w-full text-[10px] font-semibold uppercase leading-[1.3] tracking-[0.12em] text-[#1a1a1a] sm:text-[11px] lg:text-[11px]">
+                {item.label}
+              </span>
             </div>
-            <span className="max-w-[13rem] text-[17px] font-bold uppercase leading-snug tracking-wide text-[#1a1a1a] sm:max-w-[14rem] sm:text-lg md:max-w-none md:text-xl lg:text-[1.35rem] lg:leading-tight">
-              {item.label}
-            </span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -1,11 +1,10 @@
 import { GridTileImage } from 'components/grid/tile';
+import { ProductCardActionBar } from 'components/product/product-card-action-bar';
 import { VercelProduct as Product } from 'lib/bigcommerce/types';
-import { supplierSkuFromTitle } from 'lib/nike-catalog-data';
+import { skuForProduct } from 'lib/sku-for-product';
 import Link from 'next/link';
 
-export function skuForProduct(product: Product): string | undefined {
-  return product.catalog?.supplierSku ?? supplierSkuFromTitle(product.title);
-}
+export { skuForProduct } from 'lib/sku-for-product';
 
 function productionLine(product: Product): string | undefined {
   if (product.catalog?.productionDays != null) {
@@ -50,8 +49,9 @@ export function ProductCard({
   const maxP = product.priceRange.maxVariantPrice.amount;
   const priceLine = minP !== maxP ? `From $${minP} – $${maxP} each` : `$${maxP}`;
   const mq = minQty(product);
-  const inner = (
-    <div className="flex h-full flex-col overflow-hidden rounded-lg border border-neutral-200/90 bg-white p-3 shadow-sm transition-[box-shadow,border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md">
+
+  const main = (
+    <>
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-md bg-neutral-50">
         <GridTileImage
           alt={product.title}
@@ -82,28 +82,31 @@ export function ProductCard({
           <p className="text-[10px] tabular-nums text-neutral-500">Min qty {mq}</p>
         </div>
       </div>
-    </div>
+    </>
   );
 
-  if (onSelect) {
-    return (
-      <button
-        type="button"
-        onClick={() => onSelect(product)}
-        className="group block h-full w-full cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
-        aria-haspopup="dialog"
-      >
-        {inner}
-      </button>
-    );
-  }
-
   return (
-    <Link
-      className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
-      href={product.handle}
-    >
-      {inner}
-    </Link>
+    <div className="group flex h-full flex-col overflow-hidden rounded-lg border border-neutral-200/90 bg-white shadow-sm transition-[box-shadow,border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md">
+      <div className="flex min-h-0 flex-1 flex-col p-3">
+        {onSelect ? (
+          <button
+            type="button"
+            onClick={() => onSelect(product)}
+            className="flex min-h-0 flex-1 flex-col text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+            aria-haspopup="dialog"
+          >
+            {main}
+          </button>
+        ) : (
+          <Link
+            className="flex min-h-0 flex-1 flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+            href={product.handle}
+          >
+            {main}
+          </Link>
+        )}
+      </div>
+      <ProductCardActionBar product={product} />
+    </div>
   );
 }

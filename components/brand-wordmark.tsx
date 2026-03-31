@@ -1,10 +1,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-/** [Wordmark asset](https://drive.google.com/file/d/174zZXDzNUb6ed9vTmEjPVTPlVv64c9pR/view?usp=sharing) */
+/** Source: [wordmark PNG](https://drive.google.com/file/d/13JBvBafeeWo4IQe6FJxIS-Id2MUzl615/view?usp=drive_link) — served from `public/home/a-design-line-wordmark.png`. */
 const WORDMARK_SRC = '/home/a-design-line-wordmark.png';
-const NATURAL_W = 1144;
-const NATURAL_H = 241;
+const NATURAL_W = 1003;
+const NATURAL_H = 221;
 
 type BrandWordmarkLinkProps = {
   /** Header bar vs footer column */

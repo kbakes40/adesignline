@@ -14,17 +14,15 @@ export default function BrandStrip() {
   return (
     <section className="border-b border-neutral-100 bg-white py-9 md:py-11 lg:py-12">
       <div className="mx-auto max-w-[min(100%,100rem)] px-5 sm:px-8 lg:px-12">
-        <div className="flex w-full flex-nowrap items-center justify-center gap-x-3 sm:gap-x-5 md:gap-x-6 lg:gap-x-8 xl:gap-x-10">
+        {/* Single row: logos keep intrinsic width; scroll horizontally on narrow viewports instead of shrinking. */}
+        <div className="-mx-5 flex flex-nowrap items-center justify-start gap-x-6 overflow-x-auto overflow-y-hidden px-5 pb-1 sm:-mx-8 sm:px-8 sm:gap-x-8 lg:justify-center lg:gap-x-10 xl:gap-x-12">
           {brands.map((brand) => (
-            <div
-              key={brand.name}
-              className="flex min-h-0 min-w-0 flex-1 basis-0 items-center justify-center py-1"
-            >
+            <div key={brand.name} className="flex shrink-0 items-center justify-center py-1">
               {/* eslint-disable-next-line @next/next/no-img-element -- SVG brand marks; next/image often fails implicit SVG fills */}
               <img
                 src={brand.src}
                 alt={brand.name}
-                className="h-9 w-full max-h-[3.25rem] object-contain object-center opacity-[0.38] grayscale sm:h-10 md:h-11 lg:h-12 xl:h-[3.25rem]"
+                className="h-14 w-auto max-h-[4.5rem] object-contain object-center opacity-[0.38] grayscale sm:h-16 md:h-[4.75rem] lg:h-20 xl:h-24"
               />
             </div>
           ))}

@@ -105,7 +105,13 @@ export function ProductDescription({ product }: { product: Product }) {
         </dl>
       ) : null}
 
-      {product.options.length ? <VariantSelector options={product.options} variants={product.variants} /> : null}
+      {product.options.length ? (
+        <VariantSelector
+          options={product.options}
+          variants={product.variants}
+          layout={product.tags.includes('patches') ? 'horizontal' : 'stack'}
+        />
+      ) : null}
 
       <div className="mb-5">
         <ProductCatalogTabs

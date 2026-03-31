@@ -5,6 +5,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { addItemForm } from 'components/cart/actions';
 import { QuickViewAddFormActions } from 'components/cart/quick-view-add-form-actions';
 import Price from 'components/price';
+import { PatchCustomizationFlow } from 'components/product/patch-customization-flow';
 import { ProductOptionSelectors } from 'components/product/product-option-selectors';
 import { ModalProductGallery } from 'components/product/modal-product-gallery';
 import { ProductCustomizationUpload } from 'components/product/product-customization-upload';
@@ -15,9 +16,10 @@ import type {
 } from 'lib/bigcommerce/types';
 import { createDefaultLineCustomization } from 'lib/customization-defaults';
 import { productSupportsCustomization } from 'lib/product-customization';
+import { isPatchProduct } from 'lib/product-patch';
 import { usePrefersReducedMotion } from 'hooks/use-prefers-reduced-motion';
 import { QUICK_VIEW_IMAGE_ORIGIN_ID, runAddToCartFeedback } from 'lib/add-to-cart-animation';
-import { supplierSkuFromTitle } from 'lib/nike-catalog-data';
+import { skuForProduct } from 'lib/sku-for-product';
 import { maxOrderQuantityForProduct, unitPriceForQuantity } from 'lib/quantity-pricing';
 import { resolvePublicProductDetailImageUrl } from 'lib/supabase/storage';
 import { useRouter } from 'next/navigation';
@@ -30,10 +32,6 @@ function plainTextSnippet(htmlOrText: string, maxLen = 320): string {
     .trim();
   if (t.length <= maxLen) return t;
   return `${t.slice(0, maxLen).trim()}…`;
-}
-
-function skuForProduct(product: Product): string | undefined {
-  return product.catalog?.supplierSku ?? supplierSkuFromTitle(product.title);
 }
 
 function minQty(product: Product): number {
@@ -233,6 +231,10 @@ export default function ProductQuickViewModal({
     !!variantId &&
     (effectiveVariant?.availableForSale ?? true);
 
+  const configurationDone =
+    !product.options.length ||
+    Boolean(variantId && effectiveVariant && (effectiveVariant.availableForSale ?? true));
+
   return (
     <Transition show={open} as={Fragment}>
       <Dialog onClose={onClose} className="relative z-[60]">
@@ -279,6 +281,118 @@ export default function ProductQuickViewModal({
                   </div>
 
                   {productSupportsCustomization(product) ? (
+                    isPatchProduct(product) ? (
+                      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:flex-row">
+                        <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-28 md:p-6 md:pb-28 lg:pb-8">
+                          <div className="space-y-5 md:space-y-6">
+                            {sku ? (
+                              <p className="font-mono text-[12px] text-neutral-500">
+                                SKU <span className="text-neutral-800">#{sku}</span>
+                              </p>
+                            ) : null}
+
+                            <div className="flex flex-wrap items-baseline gap-2">
+                              {displayPrice ? (
+                                <span className="rounded-full bg-black px-3 py-1.5 text-[13px] text-white">
+                                  <Price amount={displayPrice.amount} currencyCode={displayPrice.currencyCode} />
+                                </span>
+                              ) : null}
+                              {priceRangeDiffers ? (
+                                <span className="text-[12px] text-neutral-500">Price varies by option</span>
+                              ) : null}
+                            </div>
+
+                            <p className="text-[13px] leading-relaxed text-neutral-600">
+                              {plainTextSnippet(product.descriptionHtml || product.description, 400)}
+                            </p>
+
+                            {product.catalog?.minQuantity != null ? (
+                              <p className="text-[12px] text-neutral-500">Minimum order quantity: {mq}</p>
+                            ) : null}
+
+                            {product.catalog?.quantityPrices && product.catalog.quantityPrices.length > 0 ? (
+                              <div className="overflow-x-auto rounded-md border border-neutral-200 bg-white">
+                                <p className="border-b border-neutral-100 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-neutral-500">
+                                  Quantity pricing (USD)
+                                </p>
+                                <table className="w-full min-w-[240px] border-collapse text-left text-[12px]">
+                                  <thead>
+                                    <tr className="border-b border-neutral-200 text-[10px] uppercase tracking-wide text-neutral-500">
+                                      <th className="py-2 pl-3 pr-2 font-medium">Quantity</th>
+                                      <th className="py-2 pr-3 font-medium">Each</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {product.catalog.quantityPrices.map((row) => (
+                                      <tr key={row.quantity} className="border-b border-neutral-100 last:border-0">
+                                        <td className="py-1.5 pl-3 pr-2 tabular-nums text-neutral-800">{row.quantity}</td>
+                                        <td className="py-1.5 pr-3 tabular-nums text-neutral-800">
+                                          ${Number(row.unitPrice).toFixed(2)}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ) : null}
+
+                            {!product.variants.length ? (
+                              <p className="text-[13px] text-red-600" role="alert">
+                                This product is not available to add online right now.
+                              </p>
+                            ) : null}
+
+                            <a
+                              href={pdpHref}
+                              className="inline-block cursor-pointer text-[13px] font-medium text-neutral-700 underline-offset-4 hover:text-black hover:underline"
+                              onClick={(e) => {
+                                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                                e.preventDefault();
+                                e.stopPropagation();
+                                router.push(pdpHref);
+                              }}
+                            >
+                              View full details
+                            </a>
+                          </div>
+                        </div>
+
+                        <aside className="flex min-h-0 w-full shrink-0 flex-col border-t border-neutral-200/80 bg-white lg:max-w-[min(480px,48%)] lg:w-[min(480px,48%)] lg:border-l lg:border-t-0">
+                          <PatchCustomizationFlow
+                            product={product}
+                            quantity={quantity}
+                            minQty={mq}
+                            maxQty={maxQty}
+                            onQuantityChange={setQuantity}
+                            displayPrice={displayPrice}
+                            customization={
+                              displayCustomization ?? createDefaultLineCustomization(product, galleryImages)
+                            }
+                            onCustomizationChange={patchCustomization}
+                            onUploadingChange={setArtworkUploading}
+                            onVariantChange={handleVariantChange}
+                            configurationDone={configurationDone}
+                            message={message}
+                          />
+                          <div className="hidden shrink-0 border-t border-neutral-200/80 bg-[#f8f7f4] px-5 py-5 md:block md:px-6">
+                            <form key={product.id} action={formAction} className="space-y-3">
+                              <input type="hidden" name="variantId" value={variantId ?? ''} />
+                              <input type="hidden" name="productId" value={productId ?? ''} />
+                              <input type="hidden" name="quantity" value={quantity} readOnly />
+                              <input type="hidden" name="customization" value={customizationJson} readOnly />
+                              <QuickViewAddFormActions
+                                message={message}
+                                onSuccess={handleAddSuccess}
+                                availableForSale={canAdd}
+                                selectedVariantId={variantId}
+                                blocked={artworkUploading}
+                                success={addedFlash}
+                              />
+                            </form>
+                          </div>
+                        </aside>
+                      </div>
+                    ) : (
                     <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:flex-row">
                       <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-28 md:p-6 md:pb-28 lg:pb-8">
                         <div className="space-y-5 md:space-y-6">
@@ -445,6 +559,7 @@ export default function ProductQuickViewModal({
                         </div>
                       </aside>
                     </div>
+                    )
                   ) : (
                     <div className="flex min-h-0 flex-1 flex-col md:overflow-y-auto">
                       <div className="space-y-5 p-4 pb-28 md:space-y-6 md:p-8 md:pb-8">
