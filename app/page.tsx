@@ -1,12 +1,18 @@
-import { Carousel } from 'components/carousel';
-import { ThreeItemGrid } from 'components/grid/three-items';
+import BrandStrip from 'components/home/brand-strip';
+import CategoryFourGrid from 'components/home/category-four-grid';
+import CtaFourGrid from 'components/home/cta-four-grid';
+import HomeHero from 'components/home/home-hero';
+import HomeRecommendedProducts from 'components/home/home-recommended-products';
+import HomeThreeCards from 'components/home/home-three-cards';
+import TrustBar from 'components/home/trust-bar';
 import Footer from 'components/layout/footer';
 import { Suspense } from 'react';
 
 export const runtime = 'edge';
 
 export const metadata = {
-  description: 'High-performance ecommerce store built with Next.js, Vercel, and BigCommerce.',
+  description:
+    'Premium branded merchandise, gift ideas, promotional products, and custom order support from A Design Line.',
   openGraph: {
     type: 'website'
   }
@@ -15,12 +21,15 @@ export const metadata = {
 export default async function HomePage() {
   return (
     <>
-      <ThreeItemGrid />
+      <HomeHero />
+      <BrandStrip />
+      <HomeRecommendedProducts />
+      <HomeThreeCards />
+      <CategoryFourGrid />
+      <TrustBar />
+      <CtaFourGrid />
       <Suspense>
-        <Carousel />
-        <Suspense>
-          <Footer />
-        </Suspense>
+        <Footer />
       </Suspense>
     </>
   );
