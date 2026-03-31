@@ -121,21 +121,6 @@ export function ProductDescription({ product }: { product: Product }) {
               <Prose compact className="text-neutral-700" html={product.descriptionHtml} />
             ) : undefined
           }
-          productOptionsSlot={
-            product.catalog?.productOptionsHtml ? (
-              <Prose compact className="text-neutral-700" html={product.catalog.productOptionsHtml} />
-            ) : undefined
-          }
-          inventorySlot={
-            product.catalog?.inventoryHtml ? (
-              <Prose compact className="text-neutral-700" html={product.catalog.inventoryHtml} />
-            ) : undefined
-          }
-          salesToolsSlot={
-            product.catalog?.salesToolsHtml ? (
-              <Prose compact className="text-neutral-700" html={product.catalog.salesToolsHtml} />
-            ) : undefined
-          }
         />
       </div>
 
