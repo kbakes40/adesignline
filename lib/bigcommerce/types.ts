@@ -45,6 +45,104 @@ export type Image = {
   height: number;
 };
 
+/** Optional fields aligned with A Design Line / Distributor Central product detail pages */
+export type VercelProductCatalog = {
+  supplierSku?: string;
+  productionDays?: number;
+  minQuantity?: number;
+  weightDisplay?: string;
+  dimensionsDisplay?: string;
+  featureBullets?: string[];
+  /** When true, quick view shows artwork upload / personalization UI */
+  supportsCustomization?: boolean;
+  /** Rich HTML for the “Product Options” tab (ordering, pricing, specs) */
+  productOptionsHtml?: string;
+  /** Rich HTML for the “Sales Tools” tab (selling aids, style references) */
+  salesToolsHtml?: string;
+  /** Rich HTML for the “Inventory” tab (stock / lead-time messaging) */
+  inventoryHtml?: string;
+  /** List price breaks from supplier PDP (quantity → each price), when imported */
+  quantityPrices?: { quantity: number; unitPrice: number }[];
+};
+
+/** All decoration zone ids — unique across product profiles (see lib/placement-profiles.ts) */
+export type ArtworkPlacementPresetId =
+  | 'left_chest'
+  | 'right_chest'
+  | 'center_chest'
+  | 'full_front'
+  | 'upper_back'
+  | 'full_back'
+  | 'left_sleeve'
+  | 'right_sleeve'
+  | 'bp_front_pocket'
+  | 'bp_upper_front'
+  | 'bp_center_front'
+  | 'bp_top_panel'
+  | 'bp_side_panel'
+  | 'df_center_side'
+  | 'df_left_side'
+  | 'df_right_side'
+  | 'df_end_cap'
+  | 'df_top_flap'
+  | 'tote_center_front'
+  | 'tote_center_back'
+  | 'tote_upper_front'
+  | 'tote_lower_front'
+  | 'hat_front_center'
+  | 'hat_left_side'
+  | 'hat_right_side'
+  | 'hat_back_arch'
+  | 'dw_front_logo'
+  | 'dw_back_logo'
+  | 'dw_center_wrap'
+  | 'dw_opposite_handle'
+  | 'off_front_center'
+  | 'off_upper_right'
+  | 'off_lower_right'
+  | 'off_back_center'
+  | 'cool_front_pocket'
+  | 'cool_upper_lid'
+  | 'cool_side_panel'
+  | 'cool_center_front'
+  | 'hg_front_center'
+  | 'hg_upper_center'
+  | 'hg_lower_center'
+  | 'gen_front_center';
+
+export type ArtworkTransparencyMode = 'native' | 'opaque' | 'no_auto_bg';
+
+/** Persisted with each cart line for checkout / ops (upload URL is temporary in dev) */
+export type LineItemCustomization = {
+  noPersonalizationRequested: boolean;
+  artworkInstructions?: string;
+  artworkFileName?: string;
+  artworkMimeType?: string;
+  /** Opaque key from upload API (swap for durable blob id in production) */
+  artworkStorageKey?: string;
+  /** Supabase Storage bucket for private artwork (e.g. artwork-uploads) */
+  artworkStorageBucket?: string;
+  /** Object path within the bucket (e.g. guest/{session}/file.png) */
+  artworkStoragePath?: string;
+  /** Original upload size in bytes */
+  artworkFileSize?: number;
+  /** When the signed preview URL expires (ms since epoch); refresh via /api/artwork/sign-url */
+  artworkSignedUrlExpiresAt?: number;
+  /** Fetch URL for the uploaded file (signed URL for Supabase private bucket, or in-memory API in dev) */
+  artworkUrl?: string;
+  /** PNG/SVG typically native; JPG opaque until optional background removal (Phase 2) */
+  artworkTransparency?: ArtworkTransparencyMode;
+  placementPreset?: ArtworkPlacementPresetId;
+  /** Logo center X in % of preview frame (0–100) */
+  placementCenterXPercent?: number;
+  placementCenterYPercent?: number;
+  /** Visual scale relative to preview (typically 0.15–1.2) */
+  placementScale?: number;
+  placementRotationDeg?: number;
+  /** Which gallery image was used for the preview */
+  previewImageIndex?: number;
+};
+
 export type VercelProduct = {
   id: string;
   handle: string;
@@ -63,6 +161,7 @@ export type VercelProduct = {
   seo: VercelSEO;
   tags: string[];
   updatedAt: string;
+  catalog?: VercelProductCatalog;
 };
 
 export type VercelProductOption = {
@@ -103,6 +202,7 @@ export type VercelCartItem = {
     }[];
     product: VercelProduct;
   };
+  customization?: LineItemCustomization;
 };
 
 export type VercelCart = {

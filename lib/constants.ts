@@ -1,29 +1,29 @@
-export enum BigCommerceSortKeys {
-  A_TO_Z = 'A_TO_Z',
-  BEST_REVIEWED = 'BEST_REVIEWED',
-  BEST_SELLING = 'BEST_SELLING',
-  RELEVANCE = 'RELEVANCE',
-  FEATURED = 'FEATURED',
-  HIGHEST_PRICE = 'HIGHEST_PRICE',
-  LOWEST_PRICE = 'LOWEST_PRICE',
-  NEWEST = 'NEWEST',
-  Z_TO_A = 'Z_TO_A'
-}
+export const BigCommerceSortKeys = {
+  A_TO_Z: 'A_TO_Z',
+  BEST_REVIEWED: 'BEST_REVIEWED',
+  BEST_SELLING: 'BEST_SELLING',
+  RELEVANCE: 'RELEVANCE',
+  FEATURED: 'FEATURED',
+  HIGHEST_PRICE: 'HIGHEST_PRICE',
+  LOWEST_PRICE: 'LOWEST_PRICE',
+  NEWEST: 'NEWEST',
+  Z_TO_A: 'Z_TO_A'
+} as const;
 
-export enum VercelSortKeys {
-  RELEVANCE = 'RELEVANCE',
-  BEST_SELLING = 'BEST_SELLING',
-  CREATED_AT = 'CREATED_AT',
-  PRICE = 'PRICE'
-}
+export const VercelSortKeys = {
+  RELEVANCE: 'RELEVANCE',
+  BEST_SELLING: 'BEST_SELLING',
+  CREATED_AT: 'CREATED_AT',
+  PRICE: 'PRICE'
+} as const;
 
-export enum vercelToBigCommerceSortKeys {
-  RELEVANCE = 'RELEVANCE',
-  BEST_SELLING = 'BEST_SELLING',
-  CREATED_AT = 'NEWEST',
-  PRICE = 'LOWEST_PRICE',
-  PRICE_ON_REVERSE = 'HIGHEST_PRICE'
-}
+export const vercelToBigCommerceSortKeys = {
+  RELEVANCE: 'RELEVANCE',
+  BEST_SELLING: 'BEST_SELLING',
+  CREATED_AT: 'NEWEST',
+  PRICE: 'LOWEST_PRICE',
+  PRICE_ON_REVERSE: 'HIGHEST_PRICE'
+} as const;
 
 export type SortFilterItem = {
   title: string;
@@ -39,11 +39,14 @@ export const defaultSort: SortFilterItem = {
   reverse: false
 };
 
+/** Lime green used for the site mark (matches A Design Line brand). */
+export const BRAND_MARK_GREEN = '#88D14E';
+
 export const sorting: SortFilterItem[] = [
   defaultSort,
-  { title: 'Trending', slug: 'trending-desc', sortKey: 'BEST_SELLING', reverse: false }, // asc
+  { title: 'Trending', slug: 'trending-desc', sortKey: 'BEST_SELLING', reverse: false },
   { title: 'Latest arrivals', slug: 'latest-desc', sortKey: 'CREATED_AT', reverse: true },
-  { title: 'Price: Low to high', slug: 'price-asc', sortKey: 'PRICE', reverse: false }, // asc
+  { title: 'Price: Low to high', slug: 'price-asc', sortKey: 'PRICE', reverse: false },
   { title: 'Price: High to low', slug: 'price-desc', sortKey: 'PRICE', reverse: true }
 ];
 

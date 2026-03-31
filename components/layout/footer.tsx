@@ -1,4 +1,4 @@
-import LogoSquare from 'components/logo-square';
+import BrandWordmarkLink from 'components/brand-wordmark';
 import Link from 'next/link';
 
 function SocialLinks() {
@@ -53,10 +53,7 @@ export default function Footer() {
     <footer className="border-t border-neutral-200 bg-white text-[13px] text-neutral-600">
       <div className="mx-auto grid max-w-screen-2xl gap-10 px-6 py-12 md:grid-cols-3 md:gap-12">
         <div>
-          <Link className="inline-flex max-w-full items-center gap-3 text-black" href="/">
-            <LogoSquare size="sm" />
-            <span className="font-serif text-[1.15rem] font-bold tracking-tight">A Design Line</span>
-          </Link>
+          <BrandWordmarkLink variant="footer" />
           <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-800">
             Embroidery • Screen Printing • Promotional Products
           </p>

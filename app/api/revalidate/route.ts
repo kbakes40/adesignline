@@ -4,5 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export const runtime = 'edge';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  return revalidate(req);
+  void req;
+  const result = await revalidate();
+  return new NextResponse(result.body, { status: result.status });
 }

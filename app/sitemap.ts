@@ -1,5 +1,4 @@
 import { getCollections, getPages, getProducts } from 'lib/bigcommerce';
-import { validateEnvironmentVariables } from 'lib/utils';
 import { MetadataRoute } from 'next';
 
 type Route = {
@@ -12,8 +11,6 @@ const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
   : 'http://localhost:3000';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  validateEnvironmentVariables();
-
   const routesMap = [''].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString()

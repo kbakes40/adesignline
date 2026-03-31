@@ -48,7 +48,7 @@ export default function CtaFourGrid() {
               ].join(' ')}
             >
               <p
-                className={`max-w-[17.5rem] text-[0.9375rem] font-bold uppercase leading-snug tracking-[0.07em] sm:max-w-[18rem] sm:text-base md:text-[1.0625rem] md:leading-[1.4] ${isLime ? 'text-white' : 'text-white/95'}`}
+                className={`max-w-[17.5rem] text-[1.0625rem] font-bold uppercase leading-snug tracking-[0.07em] sm:max-w-[18rem] sm:text-lg md:text-xl md:leading-[1.4] ${isLime ? 'text-white' : 'text-white/95'}`}
               >
                 {b.title}
               </p>

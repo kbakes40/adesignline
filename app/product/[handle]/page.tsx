@@ -9,6 +9,7 @@ import { ProductDescription } from 'components/product/product-description';
 import { getProduct, getProductRecommendations } from 'lib/bigcommerce';
 import { Image } from 'lib/bigcommerce/types';
 import { HIDDEN_PRODUCT_TAG } from 'lib/constants';
+import { resolvePublicProductDetailImageUrl, resolvePublicProductThumbUrl } from 'lib/supabase/storage';
 import Link from 'next/link';
 
 export const runtime = 'edge';
@@ -16,13 +17,15 @@ export const runtime = 'edge';
 export async function generateMetadata({
   params
 }: {
-  params: { handle: string };
+  params: Promise<{ handle: string }>;
 }): Promise<Metadata> {
-  const product = await getProduct(params.handle);
+  const { handle } = await params;
+  const product = await getProduct(handle);
 
   if (!product) return notFound();
 
   const { url, width, height, altText: alt } = product.featuredImage || {};
+  const ogImageUrl = url ? resolvePublicProductDetailImageUrl(url) : undefined;
   const indexable = !product.tags.includes(HIDDEN_PRODUCT_TAG);
 
   return {
@@ -36,11 +39,11 @@ export async function generateMetadata({
         follow: indexable
       }
     },
-    openGraph: url
+    openGraph: ogImageUrl
       ? {
           images: [
             {
-              url,
+              url: ogImageUrl,
               width,
               height,
               alt
@@ -51,8 +54,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductPage({ params }: { params: { handle: string } }) {
-  const product = await getProduct(params.handle);
+export default async function ProductPage({ params }: { params: Promise<{ handle: string }> }) {
+  const { handle } = await params;
+  const product = await getProduct(handle);
 
   if (!product) return notFound();
 
@@ -61,7 +65,9 @@ export default async function ProductPage({ params }: { params: { handle: string
     '@type': 'Product',
     name: product.title,
     description: product.description,
-    image: product.featuredImage.url,
+    image: product.featuredImage?.url
+      ? resolvePublicProductDetailImageUrl(product.featuredImage.url)
+      : undefined,
     offers: {
       '@type': 'AggregateOffer',
       availability: product.availableForSale
@@ -81,18 +87,18 @@ export default async function ProductPage({ params }: { params: { handle: string
           __html: JSON.stringify(productJsonLd)
         }}
       />
-      <div className="mx-auto max-w-screen-2xl px-4">
-        <div className="flex flex-col rounded-lg border border-neutral-200 bg-white p-8 dark:border-neutral-800 dark:bg-black md:p-12 lg:flex-row lg:gap-8">
-          <div className="h-full w-full basis-full lg:basis-4/6">
+      <div className="mx-auto max-w-screen-2xl px-4 py-10">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-8">
+          <div className="space-y-3">
             <Gallery
               images={product.images.map((image: Image) => ({
-                src: image.url,
+                src: resolvePublicProductDetailImageUrl(image.url),
                 altText: image.altText
               }))}
             />
           </div>
 
-          <div className="basis-full lg:basis-2/6">
+          <div className="min-w-0 max-w-xl pt-0 lg:pt-1">
             <ProductDescription product={product} />
           </div>
         </div>
@@ -113,15 +119,19 @@ async function RelatedProducts({ id }: { id: string }) {
   if (!relatedProducts.length) return null;
 
   return (
-    <div className="py-8">
-      <h2 className="mb-4 text-2xl font-bold">Related Products</h2>
-      <ul className="flex w-full gap-4 overflow-x-auto pt-1">
+    <div className="mx-auto max-w-screen-2xl px-4 py-10">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-medium text-black sm:text-base">Related Products</p>
+          <p className="mt-2 text-[15px] leading-relaxed text-neutral-500 sm:text-base">
+            More branded merchandise and premium product options from A Design Line.
+          </p>
+        </div>
+      </div>
+      <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {relatedProducts.map((product) => (
-          <li
-            key={product.handle}
-            className="aspect-square w-full flex-none min-[475px]:w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5"
-          >
-            <Link className="relative h-full w-full" href={`${product.handle}`}>
+          <li key={product.handle} className="aspect-square w-full">
+            <Link className="relative block h-full w-full" href={`${product.handle}`}>
               <GridTileImage
                 alt={product.title}
                 label={{
@@ -129,9 +139,14 @@ async function RelatedProducts({ id }: { id: string }) {
                   amount: product.priceRange.maxVariantPrice.amount,
                   currencyCode: product.priceRange.maxVariantPrice.currencyCode
                 }}
-                src={product.featuredImage?.url}
+                src={
+                  product.featuredImage?.url
+                    ? resolvePublicProductThumbUrl(product.featuredImage.url)
+                    : ''
+                }
                 fill
-                sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, (min-width: 475px) 50vw, 100vw"
+                quality={90}
+                sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 100vw"
               />
             </Link>
           </li>

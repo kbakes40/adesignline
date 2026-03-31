@@ -38,7 +38,7 @@ export default function TrustBar() {
                 unoptimized
               />
             </div>
-            <span className="max-w-[13rem] text-[15px] font-bold uppercase leading-snug tracking-wide text-[#1a1a1a] sm:max-w-[14rem] sm:text-base md:max-w-none md:text-[17px] lg:text-lg lg:leading-tight">
+            <span className="max-w-[13rem] text-[17px] font-bold uppercase leading-snug tracking-wide text-[#1a1a1a] sm:max-w-[14rem] sm:text-lg md:max-w-none md:text-xl lg:text-[1.35rem] lg:leading-tight">
               {item.label}
             </span>
           </div>

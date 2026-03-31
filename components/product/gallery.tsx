@@ -28,12 +28,16 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
 
   return (
     <>
-      <div className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden">
+      <div
+        id="pdp-image-origin"
+        className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden"
+      >
         {images[imageIndex] && (
           <Image
             className="h-full w-full object-contain"
             fill
-            sizes="(min-width: 1024px) 66vw, 100vw"
+            sizes="(min-width: 1536px) 900px, (min-width: 1024px) 66vw, 100vw"
+            quality={92}
             alt={images[imageIndex]?.altText as string}
             src={images[imageIndex]?.src as string}
             priority={true}
@@ -86,6 +90,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
                     src={image.src}
                     width={80}
                     height={80}
+                    quality={85}
                     active={isActive}
                   />
                 </Link>

@@ -1,91 +1,63 @@
 'use client';
 
-import { PlusIcon } from '@heroicons/react/24/outline';
-import clsx from 'clsx';
+import { AddToCartFormInner } from 'components/cart/add-to-cart-form-inner';
 import { addItem } from 'components/cart/actions';
-import LoadingDots from 'components/loading-dots';
+import { usePrefersReducedMotion } from 'hooks/use-prefers-reduced-motion';
+import { PDP_IMAGE_ORIGIN_ID, runAddToCartFeedback } from 'lib/add-to-cart-animation';
 import { VercelProductVariant as ProductVariant } from 'lib/bigcommerce/types';
-import { useSearchParams } from 'next/navigation';
-import { useFormState, useFormStatus } from 'react-dom';
-
-function SubmitButton({
-  availableForSale,
-  selectedVariantId
-}: {
-  availableForSale: boolean;
-  selectedVariantId: string | undefined;
-}) {
-  const { pending } = useFormStatus();
-  const buttonClasses =
-    'relative flex w-full items-center justify-center rounded-full bg-blue-600 p-4 tracking-wide text-white';
-  const disabledClasses = 'cursor-not-allowed opacity-60 hover:opacity-60';
-
-  if (!availableForSale) {
-    return (
-      <button aria-disabled className={clsx(buttonClasses, disabledClasses)}>
-        Out Of Stock
-      </button>
-    );
-  }
-
-  if (!selectedVariantId) {
-    return (
-      <button
-        aria-label="Please select an option"
-        aria-disabled
-        className={clsx(buttonClasses, disabledClasses)}
-      >
-        <div className="absolute left-0 ml-4">
-          <PlusIcon className="h-5" />
-        </div>
-        Add To Cart
-      </button>
-    );
-  }
-
-  return (
-    <button
-      onClick={(e: React.FormEvent<HTMLButtonElement>) => {
-        if (pending) e.preventDefault();
-      }}
-      aria-label="Add to cart"
-      aria-disabled={pending}
-      className={clsx(buttonClasses, {
-        'hover:opacity-90': true,
-        disabledClasses: pending
-      })}
-    >
-      <div className="absolute left-0 ml-4">
-        {pending ? <LoadingDots className="mb-3 bg-white" /> : <PlusIcon className="h-5" />}
-      </div>
-      Add To Cart
-    </button>
-  );
-}
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useActionState, useCallback, useState } from 'react';
 
 export function AddToCart({
   variants,
-  availableForSale
+  availableForSale,
+  imageUrl = ''
 }: {
   variants: ProductVariant[];
   availableForSale: boolean;
+  /** Featured image URL for fly animation */
+  imageUrl?: string;
 }) {
-  const [message, formAction] = useFormState(addItem, null);
+  const [message, formAction] = useActionState(addItem, null);
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const reducedMotion = usePrefersReducedMotion();
+  const [success, setSuccess] = useState(false);
+
   const defaultVariantId = variants.length === 1 ? variants[0]?.id : undefined;
   const defaultProductId = variants.length === 1 ? variants[0]?.parentId : undefined;
-  const variant = variants.find((variant: ProductVariant) =>
-    variant.selectedOptions.every(
-      (option) => option.value === searchParams.get(option.name.toLowerCase())
-    )
+  const variant = variants.find((v: ProductVariant) =>
+    v.selectedOptions.every((option) => option.value === searchParams.get(option.name.toLowerCase()))
   );
   const selectedVariantId = variant?.id || defaultVariantId;
   const selectedProductId = variant?.parentId || defaultProductId;
   const actionWithVariant = formAction.bind(null, { selectedProductId, selectedVariantId });
 
+  const onSuccess = useCallback(async () => {
+    try {
+      await router.refresh();
+      runAddToCartFeedback({
+        imageUrl,
+        originId: PDP_IMAGE_ORIGIN_ID,
+        reducedMotion,
+        playSound: !reducedMotion
+      });
+      setSuccess(true);
+      window.setTimeout(() => setSuccess(false), 1200);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [router, imageUrl, reducedMotion]);
+
   return (
     <form action={actionWithVariant}>
-      <SubmitButton availableForSale={availableForSale} selectedVariantId={selectedVariantId} />
+      <AddToCartFormInner
+        message={message}
+        onSuccess={onSuccess}
+        availableForSale={availableForSale}
+        selectedVariantId={selectedVariantId}
+        success={success}
+      />
       <p aria-live="polite" className="sr-only" role="status">
         {message}
       </p>

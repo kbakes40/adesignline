@@ -26,7 +26,7 @@ export default function HomeThreeCards() {
   return (
     <section className="bg-white px-4 pt-10 pb-14 sm:px-8 md:pt-14 md:pb-20 lg:px-10 lg:pb-24 xl:px-12">
       <div className="mx-auto max-w-[min(100%,124rem)]">
-        <p className="mb-8 text-center text-[15px] font-semibold uppercase tracking-[0.22em] text-neutral-500 md:mb-12">
+        <p className="mb-8 text-center text-[17px] font-semibold uppercase tracking-[0.22em] text-neutral-500 md:mb-12 md:text-lg">
           Featured collections
         </p>
         <div className="grid gap-11 sm:gap-12 md:grid-cols-3 md:gap-14 lg:gap-16 xl:gap-[4.25rem]">

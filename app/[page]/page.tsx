@@ -5,15 +5,11 @@ import { getPage } from 'lib/bigcommerce';
 import { notFound } from 'next/navigation';
 
 export const runtime = 'edge';
+export const revalidate = 43200;
 
-export const revalidate = 43200; // 12 hours in seconds
-
-export async function generateMetadata({
-  params
-}: {
-  params: { page: string };
-}): Promise<Metadata> {
-  const page = await getPage(params.page);
+export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {
+  const { page: pageSlug } = await params;
+  const page = await getPage(pageSlug);
 
   if (!page) return notFound();
 
@@ -28,22 +24,30 @@ export async function generateMetadata({
   };
 }
 
-export default async function Page({ params }: { params: { page: string } }) {
-  const page = await getPage(params.page);
+export default async function Page({ params }: { params: Promise<{ page: string }> }) {
+  const { page: pageSlug } = await params;
+  const page = await getPage(pageSlug);
 
   if (!page) return notFound();
 
   return (
-    <>
-      <h1 className="mb-8 text-5xl font-bold">{page.title}</h1>
-      <Prose className="mb-8" html={page.body as string} />
-      <p className="text-sm italic">
-        {`This document was last updated on ${new Intl.DateTimeFormat(undefined, {
+    <section className="mx-auto max-w-screen-lg px-4 py-12">
+      <div className="border-b border-neutral-200 pb-8">
+        <p className="text-[12px] text-neutral-500">Page</p>
+        <h1 className="mt-2 text-[2.5rem] font-medium tracking-[-0.04em] text-black sm:text-[2.75rem] md:text-[3rem]">
+          {page.title}
+        </h1>
+      </div>
+      <div className="pt-8">
+        <Prose className="max-w-none text-[14px] leading-7 text-neutral-700" html={page.body as string} />
+      </div>
+      <p className="mt-8 text-[12px] text-neutral-500">
+        {`Updated ${new Intl.DateTimeFormat(undefined, {
           year: 'numeric',
           month: 'long',
           day: 'numeric'
         }).format(new Date(page.updatedAt))}.`}
       </p>
-    </>
+    </section>
   );
 }
