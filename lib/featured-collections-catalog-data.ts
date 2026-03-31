@@ -1,5 +1,4 @@
 import type { VercelProduct } from './bigcommerce/types';
 import data from './data/featured-collections.json';
 
-/** Featured collections (PPE, Golf, Workwear/Uniforms, Top Sellers) — 3 441 SKUs. Data lives in lib/data/featured-collections.json. */
 export const featuredCollectionsCatalogProducts: VercelProduct[] = data as VercelProduct[];
