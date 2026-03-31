@@ -34,8 +34,9 @@ export function ProductCatalogTabs({
   useEffect(() => {
     if (fetched) return;
     setFetched(true);
-    fetch(`/api/catalog/product-html/${encodeURIComponent(product.id)}`)
-      .then((r) => r.json())
+
+    fetch(`/data/product-html/${encodeURIComponent(product.id)}.json`)
+      .then((r) => (r.ok ? r.json() : {}))
       .then((data: CatalogHtml) => setCatalogHtml(data))
       .catch(() => setCatalogHtml({}));
   }, [product.id, fetched]);
