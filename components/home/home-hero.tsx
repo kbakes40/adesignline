@@ -78,7 +78,7 @@ const slides: HeroSlide[] = [
   }
 ];
 
-const AUTO_ADVANCE_MS = 7500;
+const AUTO_ADVANCE_MS = 30_000;
 
 export default function HomeHero() {
   const [index, setIndex] = useState(0);

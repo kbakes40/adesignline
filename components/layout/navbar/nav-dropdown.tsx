@@ -12,8 +12,7 @@ const panelClassName =
 /** Wide panel for Categories two-column grid. */
 const panelWideClassName = 'sm:min-w-[26rem] lg:min-w-[28rem]';
 
-const brandsPanelClassName =
-  'max-w-[min(100vw-1.25rem,40rem)] min-w-[min(100vw-2rem,17.5rem)] flex flex-col';
+const brandsPanelClassName = 'flex flex-col gap-0.5';
 
 const linkBaseClassName =
   'block rounded-xl px-3 py-2.5 text-[15px] font-medium leading-[1.65] text-neutral-700 transition-[background-color,color,box-shadow] duration-200 ease-out hover:bg-neutral-100/85 hover:text-neutral-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-300/80 focus-visible:ring-offset-2';
@@ -59,6 +58,28 @@ function BrandTile({ title, path }: { title: string; path: string }) {
   );
 }
 
+function BrandDropdownLink({ title, path }: { title: string; path: string }) {
+  const logoSrc = brandNavLogoSrc[title];
+  return (
+    <Link
+      href={path}
+      className={`${linkBaseClassName} flex items-center gap-3`}
+    >
+      {logoSrc ? (
+        <Image
+          src={logoSrc}
+          alt=""
+          width={72}
+          height={24}
+          className="h-5 w-auto max-w-[4rem] object-contain opacity-[0.88]"
+          unoptimized
+        />
+      ) : null}
+      <span>{title}</span>
+    </Link>
+  );
+}
+
 function TextLink({ title, path }: { title: string; path: string }) {
   return (
     <Link href={path} className={linkBaseClassName}>
@@ -97,11 +118,9 @@ export default function NavDropdown({ title }: { title: NavDropdownTitle }) {
           {isBrands ? (
             <>
               <DropdownEyebrow>Shop by brand</DropdownEyebrow>
-              <div className="-mx-5 flex flex-nowrap gap-0.5 overflow-x-auto overflow-y-hidden px-5 pb-1 [scrollbar-width:thin] md:-mx-6 md:px-6">
-                {items.map((item) => (
-                  <BrandTile key={item.title} title={item.title} path={item.path} />
-                ))}
-              </div>
+              {items.map((item) => (
+                <BrandDropdownLink key={item.title} title={item.title} path={item.path} />
+              ))}
             </>
           ) : null}
           {isCategories ? <DropdownEyebrow className="col-span-full">Browse by category</DropdownEyebrow> : null}
