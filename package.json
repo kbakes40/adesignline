@@ -20,6 +20,7 @@
     "*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
+    "@google-analytics/data": "^5.2.1",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",
     "@supabase/supabase-js": "^2.101.0",
@@ -28,7 +29,8 @@
     "next": "16.2.1",
     "react": "19.2.4",
     "react-cookie": "^4.1.1",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@tailwindcss/container-queries": "^0.1.1",

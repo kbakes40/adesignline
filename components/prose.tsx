@@ -13,7 +13,7 @@ const defaultProse =
 
 /** Overrides default `prose` paragraph/list margins so catalog HTML doesn’t stack huge gaps. */
 const compactProse =
-  'prose prose-sm max-w-none text-[13px] leading-snug text-neutral-800 [&_p]:mb-2 [&_p]:mt-0 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:my-2 [&_ul]:mb-2 [&_ul]:mt-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 [&_li]:leading-snug [&_li]:pl-0.5 [&_strong]:font-semibold [&_strong]:text-neutral-900 [&_a]:text-neutral-900 [&_a]:underline';
+  'prose prose-sm max-w-none text-[13px] leading-snug text-neutral-800 [&_p]:mb-2 [&_p]:mt-0 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:my-2 [&_ul]:mb-2 [&_ul]:mt-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 [&_li]:leading-snug [&_li]:pl-0.5 [&_strong]:font-semibold [&_strong]:text-neutral-900 [&_a]:text-neutral-900 [&_a]:underline [&_table]:my-4 [&_table]:w-full [&_table]:border-collapse [&_table]:text-left [&_th]:border-b [&_th]:border-neutral-200 [&_th]:py-2 [&_th]:pr-3 [&_th]:font-medium [&_td]:border-b [&_td]:border-neutral-100 [&_td]:py-2 [&_td]:align-top';
 
 const Prose: FunctionComponent<TextProps> = ({ html, className, compact }) => {
   return (

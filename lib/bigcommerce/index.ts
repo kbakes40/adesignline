@@ -1,4 +1,5 @@
 import { VercelSortKeys } from 'lib/constants';
+import { withCatalogHtmlFromPublicFiles } from 'lib/server/product-catalog-html';
 import { isSupabaseCatalogEnabled } from 'lib/supabase/env';
 import {
     getProductDetailPayloadByHandle,
@@ -124,14 +125,16 @@ export async function getProduct(handle: string): Promise<VercelProduct | undefi
   if (isSupabaseCatalogEnabled()) {
     const fromDb =
       (await getProductDetailPayloadByHandle(handle)) ?? (await getProductDetailPayloadBySlug(handle));
-    if (fromDb) return fromDb;
+    if (fromDb) return await withCatalogHtmlFromPublicFiles(fromDb);
   }
   const products = await loadProducts();
   const normalized = normalizeHandle(handle);
-  return products.find((item) => {
+  const found = products.find((item) => {
     const p = normalizeHandle(item.handle);
     return p === normalized || p.split('/').pop() === normalized;
   });
+  if (!found) return undefined;
+  return await withCatalogHtmlFromPublicFiles(found);
 }
 
 export async function getProductIdBySlug(pathname: string): Promise<{ __typename: 'Product'; entityId: string } | null> {
