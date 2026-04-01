@@ -41,6 +41,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.variable}>
       <body className="bg-white text-black selection:bg-teal-300 dark:bg-neutral-900 dark:text-white dark:selection:bg-pink-500 dark:selection:text-white">
+        <div aria-hidden className="h-[3px] w-full" style={{ backgroundColor: '#88D14E' }} />
         <Navbar />
         <Suspense>
           <main>{children}</main>
