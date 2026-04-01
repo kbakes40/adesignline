@@ -1,7 +1,7 @@
 import OpengraphImage from 'components/opengraph-image';
 import { pages } from 'lib/adesignline-data';
 
-export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 
 export default async function Image({ params }: { params: Promise<{ page: string }> }) {
   const { page: pageSlug } = await params;
