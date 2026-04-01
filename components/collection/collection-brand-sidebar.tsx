@@ -1,5 +1,5 @@
 import BrandSidebar from 'components/collection/brand-sidebar';
-import { products } from 'lib/adesignline-data';
+import { products } from 'lib/adesignline-data-products';
 import { buildBrandSidebarRows } from 'lib/brand-explorer';
 
 export default function CollectionBrandSidebar({

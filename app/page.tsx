@@ -8,8 +8,6 @@ import TrustBar from 'components/home/trust-bar';
 import Footer from 'components/layout/footer';
 import { Suspense } from 'react';
 
-export const runtime = 'edge';
-
 export const metadata = {
   description:
     'Premium branded merchandise, gift ideas, promotional products, and custom order support from A Design Line.',

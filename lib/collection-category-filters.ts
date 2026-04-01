@@ -1,5 +1,5 @@
 import type { VercelProduct } from './bigcommerce/types';
-import { products } from './adesignline-data';
+import { products } from './adesignline-data-products';
 
 function haystack(p: VercelProduct): string {
   return [p.title, p.description, ...p.tags].join(' ').toLowerCase();

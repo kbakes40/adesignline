@@ -1,26 +1,11 @@
-import {
-    catalogCategorySlugs,
-    collectionsWithCatalogCategoryParam,
-    productMatchesCatalogCategory,
-    type CatalogCategorySlug
-} from 'lib/collection-category-filters';
 import { VercelSortKeys } from 'lib/constants';
-import { nikeCategoryTag, type NikeCategorySlug } from 'lib/nike-catalog-data';
-import { sortProducts } from 'lib/product-sort';
-import { productMatchesQuery, sortProductsByRelevance } from 'lib/search/rank';
-import {
-    applyFacetFilters,
-    type FacetFilterState
-} from 'lib/search-facet-engine';
 import { isSupabaseCatalogEnabled } from 'lib/supabase/env';
 import {
     getProductDetailPayloadByHandle,
     getProductDetailPayloadBySlug
 } from 'lib/supabase/products/detail';
 import { notFound } from 'next/navigation';
-import { collections, menu, pages, products } from '../adesignline-data';
-import { appendCartLines, getHydratedCart, removeLinesByIds, updateLineQuantity } from '../cart-local';
-import { getRelatedProductsForProduct } from '../related-products';
+import { collections, menu, pages } from '../adesignline-data';
 import type {
     LineItemCustomization,
     VercelCart,
@@ -33,6 +18,11 @@ import type {
 function normalizeHandle(handle: string | undefined) {
   if (handle == null) return '';
   return handle.replace(/^\//, '');
+}
+
+async function loadProducts() {
+  const { products } = await import('../adesignline-data-products');
+  return products;
 }
 
 export async function getMenu(_menuHandle: string): Promise<VercelMenu[]> {
@@ -66,12 +56,19 @@ export async function getCollectionProducts({
   collection: string;
   sortKey?: keyof typeof VercelSortKeys;
   reverse?: boolean;
-  /** Nike catalog sidebar — slug from `nikeCategoryFilters` */
   category?: string;
-  /** Narrow `/search/brands` (and other collections) by title/description/tags, e.g. `?q=puma` */
   query?: string;
-  facetState?: FacetFilterState;
+  facetState?: import('lib/search-facet-engine').FacetFilterState;
 }): Promise<VercelProduct[]> {
+  const products = await loadProducts();
+  const { nikeCategoryTag } = await import('lib/nike-catalog-data');
+  const { catalogCategorySlugs, collectionsWithCatalogCategoryParam, productMatchesCatalogCategory } = await import('lib/collection-category-filters');
+  const { productMatchesQuery, sortProductsByRelevance } = await import('lib/search/rank');
+  const { applyFacetFilters } = await import('lib/search-facet-engine');
+  const { sortProducts } = await import('lib/product-sort');
+  type NikeCategorySlug = import('lib/nike-catalog-data').NikeCategorySlug;
+  type CatalogCategorySlug = import('lib/collection-category-filters').CatalogCategorySlug;
+
   let filtered = products.filter((product) => product.tags.includes(collection));
   if (query?.trim()) {
     filtered = filtered.filter((product) => productMatchesQuery(product, query));
@@ -105,8 +102,13 @@ export async function getProducts({
   sortKey?: keyof typeof VercelSortKeys;
   reverse?: boolean;
   query?: string;
-  facetState?: FacetFilterState;
+  facetState?: import('lib/search-facet-engine').FacetFilterState;
 } = {}): Promise<VercelProduct[]> {
+  const products = await loadProducts();
+  const { productMatchesQuery, sortProductsByRelevance } = await import('lib/search/rank');
+  const { applyFacetFilters } = await import('lib/search-facet-engine');
+  const { sortProducts } = await import('lib/product-sort');
+
   let filtered = products;
   if (query?.trim()) {
     filtered = filtered.filter((product) => productMatchesQuery(product, query));
@@ -124,6 +126,7 @@ export async function getProduct(handle: string): Promise<VercelProduct | undefi
       (await getProductDetailPayloadByHandle(handle)) ?? (await getProductDetailPayloadBySlug(handle));
     if (fromDb) return fromDb;
   }
+  const products = await loadProducts();
   const normalized = normalizeHandle(handle);
   return products.find((item) => {
     const p = normalizeHandle(item.handle);
@@ -132,6 +135,7 @@ export async function getProduct(handle: string): Promise<VercelProduct | undefi
 }
 
 export async function getProductIdBySlug(pathname: string): Promise<{ __typename: 'Product'; entityId: string } | null> {
+  const products = await loadProducts();
   const normalized = normalizeHandle(pathname);
   const product = products.find((item) => {
     const p = normalizeHandle(item.handle);
@@ -145,6 +149,8 @@ export async function getProductIdBySlug(pathname: string): Promise<{ __typename
 }
 
 export async function getProductRecommendations(productId: string): Promise<VercelProduct[]> {
+  const products = await loadProducts();
+  const { getRelatedProductsForProduct } = await import('../related-products');
   const current = products.find((p) => p.id === productId);
   if (!current) return [];
   return getRelatedProductsForProduct(current, 4);
@@ -159,11 +165,13 @@ export async function getPages(): Promise<VercelPage[]> {
 }
 
 export async function createCart(): Promise<VercelCart> {
+  const { getHydratedCart } = await import('../cart-local');
   return await getHydratedCart();
 }
 
 export async function getCart(_cartId?: string): Promise<VercelCart | undefined> {
   void _cartId;
+  const { getHydratedCart } = await import('../cart-local');
   return await getHydratedCart();
 }
 
@@ -183,16 +191,19 @@ type UpdateCartLineInput = {
 
 export async function addToCart(_cartId: string, lines: AddCartLineInput[]): Promise<VercelCart> {
   void _cartId;
+  const { appendCartLines } = await import('../cart-local');
   return await appendCartLines(lines);
 }
 
 export async function removeFromCart(_cartId: string, lineIds: string[]): Promise<VercelCart | undefined> {
   void _cartId;
+  const { removeLinesByIds } = await import('../cart-local');
   return await removeLinesByIds(lineIds);
 }
 
 export async function updateCart(_cartId: string, lines: UpdateCartLineInput[]): Promise<VercelCart> {
   void _cartId;
+  const { getHydratedCart, updateLineQuantity } = await import('../cart-local');
   for (const l of lines) {
     await updateLineQuantity(l.id, l.quantity);
   }

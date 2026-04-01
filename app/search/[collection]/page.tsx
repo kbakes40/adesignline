@@ -13,8 +13,6 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { quickBrowseItemsForCollection } from 'lib/collection-quick-browse';
 
-export const runtime = 'edge';
-
 export async function generateMetadata({
   params
 }: {

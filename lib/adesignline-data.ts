@@ -1,10 +1,4 @@
-import type { VercelCollection, VercelMenu, VercelPage, VercelProduct } from './bigcommerce/types';
-import { additionalBrandCatalogProducts } from './brand-catalogs-data';
-import { carharttCatalogProducts } from './carhartt-catalog-data';
-import { fruitOfTheLoomCatalogProducts } from './fruit-of-the-loom-seed';
-import { nikeCatalogProducts } from './nike-catalog-data';
-import { patchesCatalogProducts } from './patches-catalog-data';
-import { featuredCollectionsCatalogProducts } from './featured-collections-catalog-data';
+import type { VercelCollection, VercelMenu, VercelPage } from './bigcommerce/types';
 
 /** Mobile / fallback menu — order aligned with [adesignline.com](https://www.adesignline.com/) header + footer. */
 export const menu: VercelMenu[] = [
@@ -173,15 +167,6 @@ export const collections: VercelCollection[] = [
     updatedAt: new Date().toISOString(),
     path: '/collections/patches'
   }
-];
-
-export const products: VercelProduct[] = [
-  ...nikeCatalogProducts,
-  ...carharttCatalogProducts,
-  ...additionalBrandCatalogProducts,
-  ...fruitOfTheLoomCatalogProducts,
-  ...patchesCatalogProducts,
-  ...featuredCollectionsCatalogProducts
 ];
 
 export const pages: VercelPage[] = [

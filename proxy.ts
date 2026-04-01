@@ -1,25 +1,28 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { getProductIdBySlug } from 'lib/bigcommerce';
-
 export async function proxy(request: NextRequest) {
-  const pageNode = await getProductIdBySlug(request.nextUrl.pathname);
+  const pathname = request.nextUrl.pathname;
 
-  if (pageNode?.__typename === 'Product') {
-    return NextResponse.rewrite(new URL(`/product/${pageNode.entityId}`, request.url));
+  if (
+    pathname.startsWith('/product/') ||
+    pathname.startsWith('/search') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/_next') ||
+    pathname === '/favicon.ico' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    pathname.startsWith('/data/') ||
+    pathname.startsWith('/home/')
+  ) {
+    return NextResponse.next();
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)'
   ]
 };

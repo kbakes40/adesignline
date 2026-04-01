@@ -8,8 +8,6 @@ import { defaultSort, sorting } from 'lib/constants';
 import { facetStateToFlatRecord, parseFacetFilterState } from 'lib/search-facet-engine';
 import Link from 'next/link';
 
-export const runtime = 'edge';
-
 export const metadata = {
   title: 'Shop',
   description: 'Browse premium branded merchandise, apparel, gifts, and custom programs from A Design Line.'

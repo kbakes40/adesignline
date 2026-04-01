@@ -1,5 +1,5 @@
 import type { VercelProduct } from './bigcommerce/types';
-import { products } from './adesignline-data';
+import { products } from './adesignline-data-products';
 
 /** Tags that don’t distinguish “same program” for recommendations */
 const GENERIC_TAGS = new Set([

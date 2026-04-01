@@ -1,4 +1,4 @@
-import { products } from 'lib/adesignline-data';
+import { products } from 'lib/adesignline-data-products';
 import { countNikeProductsByCategory, nikeCategoryFilters } from 'lib/nike-catalog-data';
 import Link from 'next/link';
 

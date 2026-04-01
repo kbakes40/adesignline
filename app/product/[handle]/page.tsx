@@ -12,8 +12,6 @@ import { HIDDEN_PRODUCT_TAG } from 'lib/constants';
 import { resolvePublicProductDetailImageUrl, resolvePublicProductThumbUrl } from 'lib/supabase/storage';
 import Link from 'next/link';
 
-export const runtime = 'edge';
-
 export async function generateMetadata({
   params
 }: {

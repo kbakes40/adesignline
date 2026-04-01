@@ -4,7 +4,6 @@ import Prose from 'components/prose';
 import { getPage } from 'lib/bigcommerce';
 import { notFound } from 'next/navigation';
 
-export const runtime = 'edge';
 export const revalidate = 43200;
 
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }): Promise<Metadata> {

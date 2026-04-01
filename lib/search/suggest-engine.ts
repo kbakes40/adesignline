@@ -1,4 +1,5 @@
-import { navigationGroups, products } from 'lib/adesignline-data';
+import { navigationGroups } from 'lib/adesignline-data';
+import { products } from 'lib/adesignline-data-products';
 import type { ProductListingRow } from 'lib/catalog/product-listing-types';
 import { isSupabaseCatalogEnabled } from 'lib/supabase/env';
 import { getSupabaseServer } from 'lib/supabase/server';

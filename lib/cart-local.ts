@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 
-import { products } from './adesignline-data';
+import { products } from './adesignline-data-products';
 import type { LineItemCustomization, VercelCart, VercelCartItem } from './bigcommerce/types';
 
 type Money = { amount: string; currencyCode: string };

@@ -8,7 +8,7 @@
  * Run: pnpm sync:supabase
  */
 import { createClient } from '@supabase/supabase-js';
-import { products } from '../lib/adesignline-data';
+import { products } from '../lib/adesignline-data-products';
 import { categorySlugForProduct } from '../lib/collection-category-filters';
 import { productSlugForUrl } from '../lib/product-public-url';
 import { inferFacetMulti, inferFacetNumbers } from '../lib/search-facet-engine';
