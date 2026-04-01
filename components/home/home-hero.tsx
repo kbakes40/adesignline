@@ -11,13 +11,10 @@ type HeroSlide = {
   alt: string;
   href: string;
   aria: string;
-  /** When set, `src` is an MP4 in /public (not optimized by Next Image). */
   video?: boolean;
 };
 
-/** Homepage hero banners: see public/home. */
 const slides: HeroSlide[] = [
-  /** [Premium ecommerce homepage surreal](https://drive.google.com/file/d/1OUQpR9QrPTjuAi7lKU_27SyiRUBFlq8p/view?usp=sharing) */
   {
     id: 'homepage-premium-surreal',
     src: '/home/hero-premium-homepage-14.jpg',
@@ -27,7 +24,6 @@ const slides: HeroSlide[] = [
     href: '/search',
     aria: 'Shop custom branded products'
   },
-  /** [Gear up banner](https://drive.google.com/file/d/1sUehYWWF3JsjrKNHpucvqfVKw50EI4jz/view?usp=sharing) */
   {
     id: 'gear-up-brand',
     src: '/home/hero-gear-up-your-brand.jpg',
@@ -37,7 +33,6 @@ const slides: HeroSlide[] = [
     href: '/search',
     aria: 'Gear up your brand — shop now'
   },
-  /** [Premium homepage hero 11](https://drive.google.com/file/d/1Lw8Nrgo6A6rTwhgj_VdMmhnm98UxddMk/view?usp=sharing) */
   {
     id: 'homepage-premium-11',
     src: '/home/hero-premium-homepage-11.jpg',
@@ -56,7 +51,6 @@ const slides: HeroSlide[] = [
     href: '/search',
     aria: 'Shop branded merchandise'
   },
-  /** [Premium homepage hero 12](https://drive.google.com/file/d/18PA2Hra_r9ut7FhdEZeaECR19yh-yci6/view?usp=sharing) */
   {
     id: 'homepage-premium-12',
     src: '/home/hero-premium-homepage-12.jpg',
@@ -66,7 +60,6 @@ const slides: HeroSlide[] = [
     href: '/search',
     aria: 'Shop branded merchandise'
   },
-  /** [Wide desk ecommerce hero](https://drive.google.com/file/d/1Ag4bg5pvJ1eL0RlXQu6zViN_1_6WXaRn/view?usp=sharing) */
   {
     id: 'homepage-premium-13',
     src: '/home/hero-premium-homepage-13.jpg',
@@ -79,11 +72,11 @@ const slides: HeroSlide[] = [
 ];
 
 const AUTO_ADVANCE_MS = 30_000;
+const FADE_DURATION_MS = 800;
 
 export default function HomeHero() {
   const [index, setIndex] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
-  const slide = slides[index]!;
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -101,48 +94,57 @@ export default function HomeHero() {
     return () => window.clearInterval(id);
   }, [reduceMotion]);
 
-  const isVideo = Boolean(slide.video);
-  const firstImageSlideIndex = slides.findIndex((s) => !s.video);
+  const fadeDuration = reduceMotion ? '0ms' : `${FADE_DURATION_MS}ms`;
 
   return (
     <section className="relative w-full overflow-hidden bg-white">
       <div className="relative w-full">
-        <Link
-          href={slide.href}
-          className="relative block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30 focus-visible:ring-offset-2"
-          aria-label={slide.aria}
-        >
-          {isVideo ? (
-            <video
+        {slides.map((slide, i) => {
+          const active = i === index;
+          return (
+            <Link
               key={slide.id}
-              className="block h-auto w-full max-w-none"
-              width={slide.width}
-              height={slide.height}
-              autoPlay={!reduceMotion}
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              poster="/home/hero-premium-ecommerce-banner-v2.jpg"
-              aria-hidden
+              href={slide.href}
+              className={`${i === 0 ? 'relative' : 'absolute inset-0'} block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30 focus-visible:ring-offset-2`}
+              aria-label={slide.aria}
+              aria-hidden={!active}
+              tabIndex={active ? 0 : -1}
+              style={{
+                opacity: active ? 1 : 0,
+                transition: `opacity ${fadeDuration} ease-in-out`,
+                zIndex: active ? 10 : 1
+              }}
             >
-              <source src={slide.src} type="video/mp4" />
-            </video>
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element -- Large /public hero assets: native <img> avoids optimizer edge cases on Vercel.
-            <img
-              key={slide.id}
-              src={slide.src}
-              alt={slide.alt}
-              width={slide.width}
-              height={slide.height}
-              className="block h-auto w-full max-w-none bg-neutral-100"
-              loading={index === firstImageSlideIndex ? 'eager' : 'lazy'}
-              fetchPriority={index === firstImageSlideIndex ? 'high' : undefined}
-              decoding="async"
-            />
-          )}
-        </Link>
+              {slide.video ? (
+                <video
+                  className="block h-auto w-full max-w-none"
+                  width={slide.width}
+                  height={slide.height}
+                  autoPlay={!reduceMotion}
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  aria-hidden
+                >
+                  <source src={slide.src} type="video/mp4" />
+                </video>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element -- Large /public hero assets: native <img> avoids optimizer edge cases on Vercel.
+                <img
+                  src={slide.src}
+                  alt={slide.alt}
+                  width={slide.width}
+                  height={slide.height}
+                  className="block h-auto w-full max-w-none bg-neutral-100"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={i === 0 ? 'high' : undefined}
+                  decoding="async"
+                />
+              )}
+            </Link>
+          );
+        })}
 
         <div
           className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] md:bottom-8"
