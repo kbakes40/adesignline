@@ -59,23 +59,9 @@ function BrandTile({ title, path }: { title: string; path: string }) {
 }
 
 function BrandDropdownLink({ title, path }: { title: string; path: string }) {
-  const logoSrc = brandNavLogoSrc[title];
   return (
-    <Link
-      href={path}
-      className={`${linkBaseClassName} flex items-center gap-3`}
-    >
-      {logoSrc ? (
-        <Image
-          src={logoSrc}
-          alt=""
-          width={72}
-          height={24}
-          className="h-5 w-auto max-w-[4rem] object-contain opacity-[0.88]"
-          unoptimized
-        />
-      ) : null}
-      <span>{title}</span>
+    <Link href={path} className={linkBaseClassName}>
+      {title}
     </Link>
   );
 }
